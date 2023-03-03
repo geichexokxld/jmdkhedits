@@ -137,47 +137,36 @@ def get_readable_message():
             globals()['COUNT'] -= STATUS_LIMIT
             globals()['PAGE_NO'] -= 1
     for index, download in enumerate(list(download_dict.values())[COUNT:], start=1):
-            
-            msg += f"\n\n<b>📁 Name:</b> <code>{escape(str(download.name()))}</code>"
-            msg += f"<b>\nStatus : {download.status()}</b>"
-            if download.status() not in [MirrorStatus.STATUS_SPLITTING, MirrorStatus.STATUS_SEEDING, MirrorStatus.STATUS_CONVERTING]:
-                msg += f"\n{get_progress_bar_string(download)} {download.progress()}"
-                msg += f"\n<b>Processed</b>: {get_readable_file_size(download.processed_bytes())} of {download.size()}"
-                msg += f"\n<b>Speed</b>: {download.speed()}"
-                msg += f"\n<b>ETA</b>: {download.eta()}"
-                if hasattr(download, 'seeders_num'):
-                    try:
-                        msg += f"\n<b>Seeders</b>: {download.seeders_num()} | <b>Leechers</b>: {download.leechers_num()}"
-                    except:
-                        pass
-            elif download.status() == MirrorStatus.STATUS_SEEDING:
-                msg += f"\n<b>Size</b>: {download.size()}"
-                msg += f"\n<b>Speed</b>: {download.upload_speed()}"
-                msg += f" | <b>Uploaded</b>: {download.uploaded_bytes()}"
-                msg += f"\n<b>Ratio</b>: {download.ratio()}"
-                msg += f" | <b>Time</b>: {download.seeding_time()}"
-            else:
-                msg += f"\n<b>Size</b>: {download.size()}"
-            msg += f"\n<b>Task By</b>: <a href='{download.message.link}'>{download.source}</a>"
-            msg += f"\n<b>Elapsed</b>: {get_readable_time(time() - download.message.date.timestamp())}"
-            if hasattr(download, 'playList'):
+        msg += f"<b>{download.status()}</b>: <code>{escape(str(download.name()))}</code>"
+        if download.status() not in [MirrorStatus.STATUS_SPLITTING, MirrorStatus.STATUS_SEEDING]:
+            msg += f"\n[{get_progress_bar_string(download.processed_bytes(), download.size_raw())}] {download.progress()}"
+            msg += f"\n<b>Processed</b>: {get_readable_file_size(download.processed_bytes())} of {download.size()}"
+            msg += f"\n<b>Speed</b>: {download.speed()} | <b>ETA</b>: {download.eta()}"
+            if hasattr(download, 'seeders_num'):
                 try:
-                    if playlist:=download.playList():
-                        msg += f"\n<b>Playlist</b>: {playlist}"
+                    msg += f"\n<b>Seeders</b>: {download.seeders_num()} | <b>Leechers</b>: {download.leechers_num()}"
                 except:
                     pass
-            msg += f"\n<b>Engine</b>: {download.engine}"
-            msg += f"\n<b>Upload</b>: {download.mode()}"
-            if download.status() != MirrorStatus.STATUS_CONVERTING:
-                msg += f"\n<b>Stop</b>: <code>/{BotCommands.CancelMirror} {download.gid()}</code>"
-            msg += "\n\n"
-            if STATUS_LIMIT and index == STATUS_LIMIT:
-                break
-        if len(msg) == 0:
-            return None, None
-        bmsg = f"\n<b>______________________________</b>"  
-        dl_speed = 0
-        up_speed = 0
+        elif download.status() == MirrorStatus.STATUS_SEEDING:
+            msg += f"\n<b>Size</b>: {download.size()}"
+            msg += f"\n<b>Speed</b>: {download.upload_speed()}"
+            msg += f" | <b>Uploaded</b>: {download.uploaded_bytes()}"
+            msg += f"\n<b>Ratio</b>: {download.ratio()}"
+            msg += f" | <b>Time</b>: {download.seeding_time()}"
+        else:
+            msg += f"\n<b>Size</b>: {download.size()}"
+        msg += f"\n<b>Source</b>: {download.source}"
+        msg += f"\n<b>Elapsed</b>: {get_readable_time(time() - download.startTime)}"
+        msg += f"\n<b>Engine</b>: {download.engine}"
+        msg += f"\n<b>Upload</b>: {download.mode}"
+        msg += f"\n<b>Stop</b>: <code>/{BotCommands.CancelMirror} {download.gid()}</code>"
+        msg += "\n\n"
+        if STATUS_LIMIT and index == STATUS_LIMIT:
+            break
+    if len(msg) == 0:
+        return None, None
+    dl_speed = 0
+    up_speed = 0
     for download in list(download_dict.values()):
         if download.status() == MirrorStatus.STATUS_DOWNLOADING:
             spd = download.speed()
