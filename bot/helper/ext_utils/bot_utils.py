@@ -129,7 +129,7 @@ def get_progress_bar_string(processed_bytes, total_bytes):
     return p_str
 
 def get_readable_message():
-    msg = ""
+    msg = "Powered by <b><u><i>Dhruv Mirror Premium</i></u></b>"
     if STATUS_LIMIT := config_dict['STATUS_LIMIT']:
         tasks = len(download_dict)
         globals()['PAGES'] = ceil(tasks/STATUS_LIMIT)
@@ -162,7 +162,7 @@ def get_readable_message():
         msg += f"\n<b>Engine</b>: {download.engine}"
         msg += f"\n<b>Upload</b>: {download.mode}"
         msg += f"\n<b>Stop</b>: <code>/{BotCommands.CancelMirror} {download.gid()}</code>"
-        msg += "\n\n"
+        msg += "\n"
         if STATUS_LIMIT and index == STATUS_LIMIT:
             break
     if len(msg) == 0:
